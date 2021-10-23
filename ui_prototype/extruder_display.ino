@@ -1,4 +1,4 @@
-/***********************************************************************
+ /***********************************************************************
  * PLA/PET Filament Extruder
  * Wilson Woods
  * 10.22.2021
@@ -39,14 +39,14 @@ void setup()
     UI.tft.setRotation(1);
     UI.tft.fillScreen(HX8357_BLACK);
     UI.set_numeric_input_screen();
-    
-    // UI.set_output_screen();
+    UI.get_numeric_user_input();
+    UI.tft.fillScreen(HX8357_BLACK);
+    UI.set_output_screen();
 }
 
 void loop()
 {
-    UI.get_numeric_user_input();
-    // UI.poll_numeric_inputs();
-    // UI.poll_status_inputs();
+    UI.poll_inputs(UI.numeric_params, NUMERIC_PARAM_COUNT);
+    UI.poll_inputs(UI.status_params, STATUS_PARAM_COUNT);
     delay(1000);
 }
