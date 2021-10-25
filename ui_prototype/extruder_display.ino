@@ -46,7 +46,7 @@ void setup()
 
 void loop()
 {
-    UI.poll_inputs(UI.numeric_params, NUMERIC_PARAM_COUNT);
-    UI.poll_inputs(UI.status_params, STATUS_PARAM_COUNT);
+    // UI.poll_inputs(UI.numeric_params, NUMERIC_PARAM_COUNT);
+    // UI.poll_inputs(UI.status_params, STATUS_PARAM_COUNT);
     delay(1000);
 }

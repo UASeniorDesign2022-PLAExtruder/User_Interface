@@ -24,16 +24,16 @@
 #define YM 7
 #define XP 8
 
-const unsigned char NUMERIC_PARAM_COUNT = 11;
+const unsigned char HEADING_COUNT = 3;
+const unsigned char NUMERIC_PARAM_COUNT = 9;
 const unsigned char STATUS_PARAM_COUNT = 4;
-const unsigned char HEADING_COUNT = 4;
 
 class Display
 {
   public:
       /* hardware interface objects */
-      Adafruit_HX8357 tft = Adafruit_HX8357(TFT_CS, TFT_DC, TFT_RST);
-      TouchScreen ts = TouchScreen(XP, YP, XM, YM, 285);
+      Adafruit_HX8357 tft = Adafruit_HX8357( TFT_CS, TFT_DC, TFT_RST );
+      TouchScreen ts = TouchScreen( XP, YP, XM, YM, 285 );
       
       /* cursor constants */
       const unsigned char BOX_WIDTH         = 95;
@@ -49,30 +49,32 @@ class Display
 
       struct Numeric_Param
       {
-          String LABEL;
-          unsigned char ID;
+          const String LABEL;
+          const unsigned char ID;
           float CURRENT_VALUE;
           float NEW_VALUE;
-          unsigned short LABEL_CURSOR_X;
-          unsigned short VALUE_CURSOR_X;
-          unsigned char CURSOR_Y;
+          const unsigned short LABEL_CURSOR_X;
+          const unsigned short VALUE_CURSOR_X;
+          const unsigned char CURSOR_Y;
       };  
       struct Status_Param
       {
-          String LABEL;
-          unsigned char ID;
+          const String LABEL;
+          const unsigned char ID;
           String CURRENT_VALUE;
           String NEW_VALUE;
-          unsigned short LABEL_CURSOR_X;
-          unsigned short VALUE_CURSOR_X;
-          unsigned char CURSOR_Y;
+          const unsigned short LABEL_CURSOR_X;
+          const unsigned short VALUE_CURSOR_X;
+          const unsigned char CURSOR_Y;
       };
       struct Heading
       {
-          String LABEL;
+          const String LABEL;
           const unsigned char ID;
-          unsigned short LABEL_CURSOR_X;
-          unsigned char CURSOR_Y;
+          String CURRENT_VALUE;
+          const unsigned short LABEL_CURSOR_X;
+          const unsigned short VALUE_CURSOR_X;
+          const unsigned char CURSOR_Y;
       };
       struct X_Y
       {
@@ -81,65 +83,83 @@ class Display
       };
       struct Status
       {
-          const String NONE = "Unknown";
-          const String READY   = "Ready";
-          const String ON = "ON";
-          const String OFF = "OFF";
-          const String OPEN = "Open";
-          const String CLOSED = "Closed";
+          const String NONE        = "Unknown";
+          const String READY       = "Ready";
+          const String ON          = "ON";
+          const String OFF         = "OFF";
+          const String OPEN        = "Open";
+          const String CLOSED      = "Closed";
           const String IN_PROGRESS = "In Progress";
-          const String COMPLETE = "Complete";
+          const String COMPLETE    = "Complete";
       };
 
       /******************************************************************************************************************************************************/
       Status STATUS;
       X_Y user_press;
-      Heading title_heading           = { "PLA/PET Extruder",  0, 0,  0  }; // row 0
-      Heading preparation_heading     = { "Preparation Stage", 1, 0,  20 }; // row 1
-      Heading extrusion_heading       = { "Extrusion Stage",   2, 235, 20 }; // row 1
-      Heading temps_heading           = { "Temperatures",      3, 235, 80 }; // row 4
+      Heading title_heading           = { "PLA/PET Extruder",  0, " ", 0,   240, 0  }; // col L row 0
+      Heading preparation_heading     = { "Preparation Stage", 1, " ", 0,   130, 20 }; // col L row 1
+      Heading extrusion_heading       = { "Extrusion Stage",   2, " ", 235, 385, 20 }; // col R row 1
+      Heading temps_heading           = { "Temperatures",      3, " ", 235, 385, 80 }; // col R row 4
       
-      Numeric_Param desired_yield     = { "Desired Yield: ",          0,  0.0, 5.5, 0,  130,  60  }; // row 3
-      Numeric_Param ground_weight     = { "Ground Weight (kg): ",     1,  0.0, 5.5, 0,  130,  80  }; // row 4
-      Numeric_Param zone_1_temp       = { "Zone 1: ",                 2,  0.0, 5.5, 235, 385, 100 }; // row 5
-      Numeric_Param zone_2_temp       = { "Zone 2: ",                 3,  0.0, 5.5, 235, 385, 120 }; // row 6
-      Numeric_Param zone_3_temp       = { "Zone 3: ",                 4,  0.0, 5.5, 235, 385, 140 }; // row 7
-      Numeric_Param zone_4_temp       = { "Zone 4: ",                 5,  0.0, 5.5, 235, 385, 160 }; // row 8
-      Numeric_Param zone_5_temp       = { "Zone 5: ",                 6,  0.0, 5.5, 235, 385, 180 }; // row 9
-      Numeric_Param screw_speed       = { "Screw Speed [RPM]: ",      7,  0.0, 5.5, 235, 385, 200 }; // row 10
-      Numeric_Param filament_diameter = { "Filament Diameter [mm]: ", 8,  0.0, 5.5, 235, 385, 220 }; // row 11
-      Numeric_Param extruded_length   = { "Extruded Length [m]: ",    9,  0.0, 5.5, 235, 385, 240 }; // row 12
-      Numeric_Param projected_yield   = { "Projected Yield [kg]: ",   10, 0.0, 5.5, 235, 385, 60  };  // row 3
+      Numeric_Param desired_yield     = { "Desired Yield: ",          0,  0.0, 5.5, 0,  130,  60  }; // col L row 3
+      Numeric_Param ground_weight     = { "Ground Weight (kg): ",     1,  0.0, 5.5, 0,  130,  80  }; // col L row 4
+      Numeric_Param zone_1_temp       = { "Zone 1: ",                 2,  0.0, 5.5, 235, 385, 100 }; // col R row 5
+      Numeric_Param zone_2_temp       = { "Zone 2: ",                 3,  0.0, 5.5, 235, 385, 120 }; // col R row 6
+      Numeric_Param zone_3_temp       = { "Zone 3: ",                 4,  0.0, 5.5, 235, 385, 140 }; // col R row 7
+      Numeric_Param screw_speed       = { "Screw Speed [RPM]: ",      7,  0.0, 5.5, 235, 385, 160 }; // col R row 10
+      Numeric_Param filament_diameter = { "Filament Diameter [mm]: ", 8,  0.0, 5.5, 235, 385, 180 }; // col R row 11
+      Numeric_Param extruded_length   = { "Extruded Length [m]: ",    9,  0.0, 5.5, 235, 385, 200 }; // col R row 12
+      Numeric_Param projected_yield   = { "Projected Yield [kg]: ",   10, 0.0, 5.5, 235, 385, 60  }; // col R row 3
       
-      Status_Param hopper_lid_status  = { "Hopper Lid Status: ", 0, STATUS.NONE, STATUS.READY, 0,  130,  100 }; // row 5
-      Status_Param grinder_status     = { "Grinder On/Off: ",    1, STATUS.NONE, STATUS.READY, 0,  130,  120 }; // row 6
-      Status_Param preparation_status = { "Status: ",            2, STATUS.NONE, STATUS.READY, 0,  130,  40  }; // row 2
-      Status_Param extrusion_status   = { "Status: ",            3, STATUS.NONE, STATUS.READY, 235, 385, 40  }; // row 2
+      Status_Param hopper_lid_status  = { "Hopper Lid Status: ", 0, STATUS.NONE, STATUS.READY, 0,  130,  100 }; // col L row 5
+      Status_Param grinder_status     = { "Grinder On/Off: ",    1, STATUS.NONE, STATUS.READY, 0,  130,  120 }; // col L row 6
+      Status_Param preparation_status = { "Status: ",            2, STATUS.NONE, STATUS.READY, 0,  130,  40  }; // col L row 2
+      Status_Param extrusion_status   = { "Status: ",            3, STATUS.NONE, STATUS.READY, 235, 385, 40  }; // col R row 2
       /******************************************************************************************************************************************************/
-      Numeric_Param* numeric_params[NUMERIC_PARAM_COUNT]  = { &desired_yield, &ground_weight, &zone_1_temp,&zone_2_temp, &zone_3_temp, &zone_4_temp,
-                                                              &zone_5_temp, &screw_speed, &filament_diameter, &extruded_length, &projected_yield };                                                  
+      Numeric_Param* numeric_params[NUMERIC_PARAM_COUNT]  = { &desired_yield, &ground_weight, &zone_1_temp,&zone_2_temp, &zone_3_temp,
+                                                              &screw_speed, &filament_diameter, &extruded_length, &projected_yield };                                                  
       Status_Param* status_params[STATUS_PARAM_COUNT]     = { &hopper_lid_status, &grinder_status, &preparation_status, &extrusion_status };
-      Heading* headings[HEADING_COUNT]                    = { &title_heading, &preparation_heading, &extrusion_heading, &temps_heading };
+      Heading* headings[HEADING_COUNT]                    = { &preparation_heading, &extrusion_heading, &temps_heading };
       /******************************************************************************************************************************************************/
 
-      template <class T> void set_label_and_value(T Params_Array, unsigned char ID);
-      template <class T> void update_output( T Params_Array, unsigned char ID );
+      template <class T> void set_label_and_value(T Params_Array, unsigned char label_type);
+      template <class T> void update_output(T Params_Array, unsigned char ID);
       template <class T> void poll_inputs(T Params_Array, unsigned char SIZE);  
       void set_text(unsigned char S, unsigned short C);
       void set_output_screen();
-      void set_heading(unsigned char ID);
       void set_numeric_input_screen();
       float get_numeric_user_input();   
-   
 };
 
-template <class T> void Display::set_label_and_value(T Params_Array, unsigned char ID)
+template <class T> void Display::set_label_and_value (T Params_Array, unsigned char label_type)
 {
-    set_text(1, HX8357_WHITE);
-    tft.setCursor(Params_Array[ID]->LABEL_CURSOR_X, Params_Array[ID]->CURSOR_Y);
-    tft.print(Params_Array[ID]->LABEL);
-    tft.setCursor(Params_Array[ID]->VALUE_CURSOR_X, Params_Array[ID]->CURSOR_Y);
-    tft.print(Params_Array[ID]->CURRENT_VALUE);
+    int unsigned short text_color = 0;
+    unsigned char item_count = 0;
+    switch( label_type )
+    {
+        case 0:
+            item_count = HEADING_COUNT;
+            text_color = HX8357_CYAN;
+            break;
+        case 1:
+            item_count = NUMERIC_PARAM_COUNT;
+            text_color = HX8357_WHITE;
+            break;
+        case 2:
+            item_count = STATUS_PARAM_COUNT;
+            text_color = HX8357_WHITE;
+            break;
+        default:
+            break;
+    }
+    set_text(1, text_color);
+    for (int ID = 0; ID < item_count; ID++)
+    {
+        tft.setCursor(Params_Array[ID]->LABEL_CURSOR_X, Params_Array[ID]->CURSOR_Y);
+        tft.print(Params_Array[ID]->LABEL);
+        tft.setCursor(Params_Array[ID]->VALUE_CURSOR_X, Params_Array[ID]->CURSOR_Y);
+        tft.print(Params_Array[ID]->CURRENT_VALUE);
+    }
 }
 
 template <class T> void Display::update_output( T Params_Array, unsigned char ID )

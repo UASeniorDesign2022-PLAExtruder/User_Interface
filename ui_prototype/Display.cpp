@@ -21,28 +21,14 @@ void Display::set_text(unsigned char S, unsigned short C) { tft.setTextSize(S); 
 void Display::set_output_screen()
 {
     tft.drawLine(230, 20, 230, 320, HX8357_WHITE); // draw vertical divider line x = 230, y = 20 -> y = Y_MAX
-    set_text(2, HX8357_BLUE);
+    set_text(2, HX8357_MAGENTA);
     tft.setCursor(title_heading.LABEL_CURSOR_X, title_heading.CURSOR_Y);
-    
     tft.print(title_heading.LABEL);
-    set_text(1, HX8357_WHITE);
-    for (int ID = 1; ID < HEADING_COUNT; ID++)        { set_heading(ID); }
-    // for (int ID = 0; ID < NUMERIC_PARAM_COUNT; ID++)  { set_numeric_label_and_value(ID); }
-    for (int ID = 0; ID < NUMERIC_PARAM_COUNT; ID++)  { set_label_and_value(numeric_params, ID); }
-    // for (int ID = 0; ID < STATUS_PARAM_COUNT; ID++)   { set_status_label_and_value(ID); }
-    for (int ID = 0; ID < STATUS_PARAM_COUNT; ID++)   { set_label_and_value(status_params, ID); }
+    set_label_and_value(headings, 0);
+    set_label_and_value(numeric_params, 1);
+    set_label_and_value(status_params, 2);
 }
 /* END set_output_screen() */
-
-/* set_heading() */
-void Display::set_heading(unsigned char ID)
-{
-    set_text(1, HX8357_WHITE);
-    tft.setCursor(headings[ID]->LABEL_CURSOR_X, headings[ID]->CURSOR_Y);
-    tft.print(headings[ID]->LABEL);
-}
-
-/* END set_heading() */
 
 /* set_numeric_input_screen() */
 void Display::set_numeric_input_screen()
@@ -63,13 +49,11 @@ void Display::set_numeric_input_screen()
         tft.drawLine(COL_WIDTH * (n + 1), UPPER_BOUND, COL_WIDTH * (n + 1), 320, HX8357_WHITE);
     for (unsigned char i = 0; i < 5; i++)
     {
-        row_1_item = i + 1;
-        row_2_item = i + 6;
         tft.setCursor(x_cursor, 85);
-        tft.print(row_1_item);
+        tft.print(i + 1);
         tft.setCursor(x_cursor, 175);
-        if (row_2_item == 10) { row_2_item = 0; }
-        tft.print(row_2_item);
+        if (i != 4) { tft.print(i + 6); }
+        else { tft.print(0); }
         x_cursor += 96;
     }
     for (unsigned char i = 0; i < 4; i++)
@@ -142,8 +126,7 @@ float Display::get_numeric_user_input()
                 text_box_cursor_x = STARTING_CURSOR_X;
                 button = 'n';
                 input_string = "";
-            }
-            
+            } 
         }
     }
     input_value = input_string.toFloat();
