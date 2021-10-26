@@ -10,6 +10,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include <stdbool.h>
 #include "Arduino.h"
 #include "Adafruit_HX8357.h"
 #include "Adafruit_GFX.h"
@@ -24,163 +25,223 @@
 #define YM 7
 #define XP 8
 
-const unsigned char HEADING_COUNT = 3;
-const unsigned char NUMERIC_PARAM_COUNT = 9;
+const unsigned char NUMERIC_PARAM_COUNT = 10;
 const unsigned char STATUS_PARAM_COUNT = 4;
 
 class Display
 {
-  public:
-      /* hardware interface objects */
-      Adafruit_HX8357 tft = Adafruit_HX8357( TFT_CS, TFT_DC, TFT_RST );
-      TouchScreen ts = TouchScreen( XP, YP, XM, YM, 285 );
-      
-      /* cursor constants */
-      const unsigned char BOX_WIDTH         = 95;
-      const unsigned char BOX_HEIGHT        = 15;
-      /* touch screen constants */
-      const unsigned char BUFFER            = 2;
-      const unsigned char TEXT_BOX_CURSOR_Y = 15;  
-      const unsigned char STARTING_CURSOR_X = 180;
-      const unsigned char COL_WIDTH         = 96;
-      const unsigned char ROW_HEIGHT        = 90;
-      const unsigned char UPPER_BOUND       = 50;
-
-
-      struct Numeric_Param
-      {
-          const String LABEL;
-          const unsigned char ID;
-          float CURRENT_VALUE;
-          float NEW_VALUE;
-          const unsigned short LABEL_CURSOR_X;
-          const unsigned short VALUE_CURSOR_X;
-          const unsigned char CURSOR_Y;
-      };  
-      struct Status_Param
-      {
-          const String LABEL;
-          const unsigned char ID;
-          String CURRENT_VALUE;
-          String NEW_VALUE;
-          const unsigned short LABEL_CURSOR_X;
-          const unsigned short VALUE_CURSOR_X;
-          const unsigned char CURSOR_Y;
-      };
-      struct Heading
-      {
-          const String LABEL;
-          const unsigned char ID;
-          String CURRENT_VALUE;
-          const unsigned short LABEL_CURSOR_X;
-          const unsigned short VALUE_CURSOR_X;
-          const unsigned char CURSOR_Y;
-      };
-      struct X_Y
-      {
-          float x_scaled = 0.0;
-          float y_scaled = 0.0;
-      };
-      struct Status
-      {
-          const String NONE        = "Unknown";
-          const String READY       = "Ready";
-          const String ON          = "ON";
-          const String OFF         = "OFF";
-          const String OPEN        = "Open";
-          const String CLOSED      = "Closed";
-          const String IN_PROGRESS = "In Progress";
-          const String COMPLETE    = "Complete";
-      };
-
-      /******************************************************************************************************************************************************/
-      Status STATUS;
-      X_Y user_press;
-      Heading title_heading           = { "PLA/PET Extruder",  0, " ", 0,   240, 0  }; // col L row 0
-      Heading preparation_heading     = { "Preparation Stage", 1, " ", 0,   130, 20 }; // col L row 1
-      Heading extrusion_heading       = { "Extrusion Stage",   2, " ", 235, 385, 20 }; // col R row 1
-      Heading temps_heading           = { "Temperatures",      3, " ", 235, 385, 80 }; // col R row 4
-      
-      Numeric_Param desired_yield     = { "Desired Yield: ",          0,  0.0, 5.5, 0,  130,  60  }; // col L row 3
-      Numeric_Param ground_weight     = { "Ground Weight (kg): ",     1,  0.0, 5.5, 0,  130,  80  }; // col L row 4
-      Numeric_Param zone_1_temp       = { "Zone 1: ",                 2,  0.0, 5.5, 235, 385, 100 }; // col R row 5
-      Numeric_Param zone_2_temp       = { "Zone 2: ",                 3,  0.0, 5.5, 235, 385, 120 }; // col R row 6
-      Numeric_Param zone_3_temp       = { "Zone 3: ",                 4,  0.0, 5.5, 235, 385, 140 }; // col R row 7
-      Numeric_Param screw_speed       = { "Screw Speed [RPM]: ",      7,  0.0, 5.5, 235, 385, 160 }; // col R row 10
-      Numeric_Param filament_diameter = { "Filament Diameter [mm]: ", 8,  0.0, 5.5, 235, 385, 180 }; // col R row 11
-      Numeric_Param extruded_length   = { "Extruded Length [m]: ",    9,  0.0, 5.5, 235, 385, 200 }; // col R row 12
-      Numeric_Param projected_yield   = { "Projected Yield [kg]: ",   10, 0.0, 5.5, 235, 385, 60  }; // col R row 3
-      
-      Status_Param hopper_lid_status  = { "Hopper Lid Status: ", 0, STATUS.NONE, STATUS.READY, 0,  130,  100 }; // col L row 5
-      Status_Param grinder_status     = { "Grinder On/Off: ",    1, STATUS.NONE, STATUS.READY, 0,  130,  120 }; // col L row 6
-      Status_Param preparation_status = { "Status: ",            2, STATUS.NONE, STATUS.READY, 0,  130,  40  }; // col L row 2
-      Status_Param extrusion_status   = { "Status: ",            3, STATUS.NONE, STATUS.READY, 235, 385, 40  }; // col R row 2
-      /******************************************************************************************************************************************************/
-      Numeric_Param* numeric_params[NUMERIC_PARAM_COUNT]  = { &desired_yield, &ground_weight, &zone_1_temp,&zone_2_temp, &zone_3_temp,
-                                                              &screw_speed, &filament_diameter, &extruded_length, &projected_yield };                                                  
-      Status_Param* status_params[STATUS_PARAM_COUNT]     = { &hopper_lid_status, &grinder_status, &preparation_status, &extrusion_status };
-      Heading* headings[HEADING_COUNT]                    = { &preparation_heading, &extrusion_heading, &temps_heading };
-      /******************************************************************************************************************************************************/
-
-      template <class T> void set_label_and_value(T Params_Array, unsigned char label_type);
-      template <class T> void update_output(T Params_Array, unsigned char ID);
-      template <class T> void poll_inputs(T Params_Array, unsigned char SIZE);  
-      void set_text(unsigned char S, unsigned short C);
-      void set_output_screen();
-      void set_numeric_input_screen();
-      float get_numeric_user_input();   
+    public:
+        /* hardware interface objects */
+        Adafruit_HX8357 tft = Adafruit_HX8357( TFT_CS, TFT_DC, TFT_RST );
+        TouchScreen ts = TouchScreen( XP, YP, XM, YM, 285 );
+        struct Numeric_Param
+        {
+            const char* LABEL;
+            const unsigned char ID;
+            float VALUE;
+            bool IS_CURRENT;
+            char  COLUMN;
+            const unsigned char CURSOR_Y;
+        };  
+        struct Status_Param
+        {
+            const char* LABEL;
+            const unsigned char ID;
+            char* VALUE;
+            bool IS_CURRENT;
+            char  COLUMN;
+            const unsigned char CURSOR_Y;
+        };
+        struct X_Y
+        {
+            float x = 0.0;
+            float y = 0.0;
+        };
+        const char* STATUS_NONE         = "--";
+        const char* STATUS_READY        = "Ready";
+        const char* STATUS_ON           = "ON";
+        const char* STATUS_OFF          = "OFF";
+        const char* STATUS_OPEN         = "Open";
+        const char* STATUS_CLOSED       = "Closed";
+        const char* STATUS_IN_PROGRESS  = "In Progress";
+        const char* STATUS_COMPLETE     = "Complete";
+        /*******************************************************************************************************************/
+        X_Y pr;
+        Numeric_Param desired_yield     = { "Desired Yield (kg): ",     0, 0.0, 1, 'L', 60  }; // col L row 3
+        Numeric_Param required_input    = { "Required Input (kg): ",    1, 0.0, 1, 'L', 80  }; // col L row 4
+        Numeric_Param ground_weight     = { "Ground Weight (kg): ",     2, 0.0, 1, 'L', 100 }; // col L row 5
+        Numeric_Param zone_1_temp       = { "Zone 1: ",                 3, 0.0, 1, 'R', 100 }; // col R row 5
+        Numeric_Param zone_2_temp       = { "Zone 2: ",                 4, 0.0, 1, 'R', 120 }; // col R row 6
+        Numeric_Param zone_3_temp       = { "Zone 3: ",                 5, 0.0, 1, 'R', 140 }; // col R row 7
+        Numeric_Param screw_speed       = { "Screw Speed [RPM]: ",      6, 0.0, 1, 'R', 160 }; // col R row 10
+        Numeric_Param filament_diameter = { "Diameter (mm): ",          7, 0.0, 1, 'R', 180 }; // col R row 11
+        Numeric_Param extruded_length   = { "Extruded Length (m): ",    8, 0.0, 1, 'R', 200 }; // col R row 12
+        Numeric_Param projected_yield   = { "Projected Yield (kg): ",   9, 0.0, 1, 'R', 60  }; // col R row 3
+        
+        Status_Param hopper_lid_status  = { "Hopper Lid Status: ", 0, STATUS_NONE, 1, 'L', 120 }; // col L row 6
+        Status_Param grinder_status     = { "Grinder (On/Off): ",  1, STATUS_NONE, 1, 'L', 140 }; // col L row 7
+        Status_Param preparation_status = { "Status: ",            2, STATUS_NONE, 1, 'L', 40  }; // col L row 2
+        Status_Param extrusion_status   = { "Status: ",            3, STATUS_NONE, 1, 'R', 40  }; // col R row 2
+        /*******************************************************************************************************************/
+        Numeric_Param* numeric_params[NUMERIC_PARAM_COUNT] = { &desired_yield, &required_input, &ground_weight,
+                                                               &zone_1_temp, &zone_2_temp, &zone_3_temp,
+                                                               &screw_speed, &filament_diameter, &extruded_length,
+                                                               &projected_yield };                                                  
+        Status_Param* status_params[STATUS_PARAM_COUNT]    = { &hopper_lid_status, &grinder_status, &preparation_status,
+                                                               &extrusion_status };
+        /*******************************************************************************************************************/
+        template <class T> void set_label_and_value(T Params_Array, unsigned char label_type);
+        template <class T> void update_output(T Params_Array, unsigned char ID);
+        template <class T> void poll_inputs(T Params_Array, unsigned char SIZE);  
+        template <class T> void set_numeric_input_screen(T Params_Array, const unsigned char ID);
+        template <class T> void get_numeric_user_input(T Params_Array, const unsigned char ID);   
+        void set_text(unsigned char S, unsigned short C);
+        void set_new_numeric_value(float new_value, unsigned char ID);
+        void set_new_status_value(char* new_value, unsigned char ID);
+        void set_default_background();
+        void set_output_screen();
 };
 
 template <class T> void Display::set_label_and_value (T Params_Array, unsigned char label_type)
 {
-    int unsigned short text_color = 0;
+    unsigned short text_color = 0;
     unsigned char item_count = 0;
-    switch( label_type )
-    {
-        case 0:
-            item_count = HEADING_COUNT;
-            text_color = HX8357_CYAN;
-            break;
-        case 1:
-            item_count = NUMERIC_PARAM_COUNT;
-            text_color = HX8357_WHITE;
-            break;
-        case 2:
-            item_count = STATUS_PARAM_COUNT;
-            text_color = HX8357_WHITE;
-            break;
-        default:
-            break;
-    }
-    set_text(1, text_color);
+    unsigned short label_cursor = 0;
+    unsigned short value_cursor = 130;
+
+    set_text(1, HX8357_CYAN);
+    tft.setCursor(0, 20);
+    tft.print("Preparation Stage");
+    tft.setCursor(235, 20);
+    tft.print("Extrusion Stage");
+    tft.setCursor(235, 80);
+    tft.print("Temperatures");
+    if (label_type == 0) { item_count = NUMERIC_PARAM_COUNT; }
+    else { item_count = STATUS_PARAM_COUNT; }
+    set_text(1,HX8357_WHITE);
     for (int ID = 0; ID < item_count; ID++)
     {
-        tft.setCursor(Params_Array[ID]->LABEL_CURSOR_X, Params_Array[ID]->CURSOR_Y);
+        if (Params_Array[ID]->COLUMN == 'R') { label_cursor = 235; value_cursor = 385; }
+        tft.setCursor(label_cursor, Params_Array[ID]->CURSOR_Y);
         tft.print(Params_Array[ID]->LABEL);
-        tft.setCursor(Params_Array[ID]->VALUE_CURSOR_X, Params_Array[ID]->CURSOR_Y);
-        tft.print(Params_Array[ID]->CURRENT_VALUE);
+        tft.setCursor(value_cursor, Params_Array[ID]->CURSOR_Y);
+        tft.print(Params_Array[ID]->VALUE);
     }
 }
 
 template <class T> void Display::update_output( T Params_Array, unsigned char ID )
 {
+    unsigned short value_cursor = 130;
+    if (Params_Array[ID]->COLUMN == 'R') { value_cursor = 385; }
     set_text(1, HX8357_WHITE);
-    tft.fillRect(Params_Array[ID]->VALUE_CURSOR_X, Params_Array[ID]->CURSOR_Y, BOX_WIDTH, BOX_HEIGHT, HX8357_BLACK);
-    tft.setCursor(Params_Array[ID]->VALUE_CURSOR_X, Params_Array[ID]->CURSOR_Y);
-    tft.print(Params_Array[ID]->CURRENT_VALUE);
+    tft.fillRect(value_cursor, Params_Array[ID]->CURSOR_Y, 95, 15, HX8357_BLACK);
+    tft.setCursor(value_cursor, Params_Array[ID]->CURSOR_Y);
+    tft.print(Params_Array[ID]->VALUE);
+    Params_Array[ID]->IS_CURRENT = true;
 }
 
 template <class T> void Display::poll_inputs(T Params_Array, unsigned char SIZE)
 {
     for (int ID = 0; ID < SIZE; ID++)
+        if (Params_Array[ID]->IS_CURRENT == false) { update_output(Params_Array, ID); }
+}
+
+/* set_numeric_input_screen() */
+template <class T> void Display::set_numeric_input_screen(T Params_Array, const unsigned char ID)
+{
+    unsigned short x_cursor = 42;
+    unsigned char row_1_item, row_2_item;
+    unsigned short bottom_label_positions[] = { 5, 115, 235, 310 };
+    char *bottom_labels[]                   = { "Go Back", "Clear", ".", "Enter" };
+    set_default_background();
+    tft.setCursor(0, 20);
+    set_text(2, HX8357_WHITE);
+    tft.print(Params_Array[ID]->LABEL);
+    // horizontal lines
+    for (unsigned short n = 0; n < 3; n++)
+        tft.drawLine(0, 50 + (n * 90), 480, 50 + (n * 90), HX8357_WHITE);
+    for (unsigned char n = 0; n < 4; n++)
+        tft.drawLine(96 * (n + 1), 50, 96 * (n + 1), 320, HX8357_WHITE);
+    for (unsigned char i = 0; i < 5; i++)
     {
-        if (Params_Array[ID]->CURRENT_VALUE != Params_Array[ID]->NEW_VALUE)
-        { 
-            Params_Array[ID]->CURRENT_VALUE = Params_Array[ID]->NEW_VALUE;
-            update_output(Params_Array, ID);
-            delay(1000);
-        }
+        tft.setCursor(x_cursor, 85);
+        tft.print(i + 1);
+        tft.setCursor(x_cursor, 175);
+        if (i != 4) { tft.print(i + 6); }
+        else { tft.print(0); }
+        x_cursor += 96;
+    }
+    for (unsigned char i = 0; i < 4; i++)
+    {
+        tft.setCursor(bottom_label_positions[i], 265);
+        tft.print(bottom_labels[i]);
     }
 }
+/* END set_numeric_input_screen() */
+
+/* get_numeric_user_input() */
+template <class T> void Display::get_numeric_user_input(T Params_Array, const unsigned char ID)
+{
+    unsigned char row = 0;
+    unsigned char col = 0;
+    unsigned char index = 0;
+    unsigned char decimal_index = 0;
+    unsigned short sum = 0;
+    float input_value = 0.0;
+    char button = 'n';
+    const char *buttons[] = { "12345", "67890", "bc.en" };
+    unsigned short text_box_cursor_x = 230;
+    set_text(2, HX8357_WHITE);
+
+    while (1)
+    {
+        TSPoint p = ts.getPoint();
+        delay(300);
+        if (p.z > 3)
+        {
+            pr.x = (float)p.y * (480.0 / 1023.0);
+            pr.y = 320.0 - ((float)p.x * (320.0 / 1023.0));
+            if      (pr.x < (96 - 2)) { col = 0; }
+            else if (pr.x > (96 + 2) && pr.x < ((96 * 2) - 2)) { col = 1; }
+            else if (pr.x > ((96 * 2) + 2) && pr.x < ((96 * 3) - 2)) { col = 2; }
+            else if (pr.x > ((96 * 3) + 2) && pr.x < ((96 * 4) - 2)) { col = 3; }
+            else if (pr.x > ((96 * 4) + 2) && pr.x < 480) { col = 4; }
+            else    { col = 1000; }
+            if      (pr.y > (50 + 2)  && pr.y < (50 + 90 - 2)) { row = 0; }
+            else if (pr.y > (50 + 90 + 2) && pr.y < (50 + (90 * 2) - 2)) { row = 1; }
+            else if (pr.y > (50 + (90 * 2) + 2) && pr.y < 320) { row = 2; }
+            else    { row = 1000; }
+            pr.x = 1000;
+            pr.y = 1000;
+            button = buttons[row][col];
+            if (isDigit(button) || button == '.')
+            {
+                text_box_cursor_x += 12;
+                tft.setCursor(text_box_cursor_x, 20);
+                tft.print(button);
+                if (isDigit(button))
+                    sum = (sum * 10) + (button - '0');
+                else
+                    decimal_index = index;
+                index++;
+            }
+            else if (button == 'b')
+                return 0.0;
+            else if (button == 'c')
+            {
+                tft.fillRect(230, 20, 300, 20, HX8357_BLACK);
+                text_box_cursor_x = 230;
+                button = 'n';
+                sum = 0;
+                index = 0;
+            }
+            else if (button == 'e')
+                break;
+        }
+    }
+    input_value = sum / pow(10, (index - decimal_index - 1));
+    set_new_numeric_value(input_value, ID);
+}
+/* END get_numeric_user_input() */
       
 #endif
