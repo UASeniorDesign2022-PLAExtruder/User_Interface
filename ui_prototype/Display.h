@@ -19,7 +19,6 @@
 #define TFT_CS 10
 #define TFT_DC 9
 #define TFT_RST 8
-
 #define YP A2
 #define XM A3
 #define YM 7
@@ -34,14 +33,15 @@ class Display
         /* hardware interface objects */
         Adafruit_HX8357 tft = Adafruit_HX8357( TFT_CS, TFT_DC, TFT_RST );
         TouchScreen ts = TouchScreen( XP, YP, XM, YM, 285 );
+
         struct Numeric_Param
         {
             const char* LABEL;
             const unsigned char ID;
             float VALUE;
             bool IS_CURRENT;
-            char  COLUMN;
-            const unsigned char CURSOR_Y;
+            const char  COLUMN;
+            const unsigned char ROW;
         };  
         struct Status_Param
         {
@@ -49,39 +49,38 @@ class Display
             const unsigned char ID;
             char* VALUE;
             bool IS_CURRENT;
-            char  COLUMN;
-            const unsigned char CURSOR_Y;
+            const char  COLUMN;
+            const unsigned char ROW;
         };
         struct X_Y
         {
             float x = 0.0;
             float y = 0.0;
-        };
-        const char* STATUS_NONE         = "--";
-        const char* STATUS_READY        = "Ready";
-        const char* STATUS_ON           = "ON";
-        const char* STATUS_OFF          = "OFF";
-        const char* STATUS_OPEN         = "Open";
-        const char* STATUS_CLOSED       = "Closed";
-        const char* STATUS_IN_PROGRESS  = "In Progress";
-        const char* STATUS_COMPLETE     = "Complete";
+        };                                                               /*____Status___________I2C Code__*/
+        const char* STATUS_NONE         = "--";                          /*  STATUS_NONE          0x00    */
+        const char* STATUS_READY        = "Ready";                       /*  STATUS_READY         0x01    */                 
+        const char* STATUS_ON           = "ON";                          /*  STATUS_ON            0x02    */
+        const char* STATUS_OFF          = "OFF";                         /*  STATUS_OFF           0x03    */
+        const char* STATUS_OPEN         = "Open";                        /*  STATUS_OPEN          0x04    */
+        const char* STATUS_CLOSED       = "Closed";                      /*  STATUS_CLOSED        0x05    */
+        const char* STATUS_IN_PROGRESS  = "In Progress";                 /*  STATUS_IN_PROGRESS   0x06    */
+        const char* STATUS_COMPLETE     = "Complete";                    /*  STATUS_COMPLETE      0x07    */
         /*******************************************************************************************************************/
         X_Y pr;
-        Numeric_Param desired_yield     = { "Desired Yield (kg): ",     0, 0.0, 1, 'L', 60  }; // col L row 3
-        Numeric_Param required_input    = { "Required Input (kg): ",    1, 0.0, 1, 'L', 80  }; // col L row 4
-        Numeric_Param ground_weight     = { "Ground Weight (kg): ",     2, 0.0, 1, 'L', 100 }; // col L row 5
-        Numeric_Param zone_1_temp       = { "Zone 1: ",                 3, 0.0, 1, 'R', 100 }; // col R row 5
-        Numeric_Param zone_2_temp       = { "Zone 2: ",                 4, 0.0, 1, 'R', 120 }; // col R row 6
-        Numeric_Param zone_3_temp       = { "Zone 3: ",                 5, 0.0, 1, 'R', 140 }; // col R row 7
-        Numeric_Param screw_speed       = { "Screw Speed [RPM]: ",      6, 0.0, 1, 'R', 160 }; // col R row 10
-        Numeric_Param filament_diameter = { "Diameter (mm): ",          7, 0.0, 1, 'R', 180 }; // col R row 11
-        Numeric_Param extruded_length   = { "Extruded Length (m): ",    8, 0.0, 1, 'R', 200 }; // col R row 12
-        Numeric_Param projected_yield   = { "Projected Yield (kg): ",   9, 0.0, 1, 'R', 60  }; // col R row 3
-        
-        Status_Param hopper_lid_status  = { "Hopper Lid Status: ", 0, STATUS_NONE, 1, 'L', 120 }; // col L row 6
-        Status_Param grinder_status     = { "Grinder (On/Off): ",  1, STATUS_NONE, 1, 'L', 140 }; // col L row 7
-        Status_Param preparation_status = { "Status: ",            2, STATUS_NONE, 1, 'L', 40  }; // col L row 2
-        Status_Param extrusion_status   = { "Status: ",            3, STATUS_NONE, 1, 'R', 40  }; // col R row 2
+        Numeric_Param desired_yield     = { "Desired Yield (kg): ",     0, 0.0,         1, 'L', 60  }; // col L row 3
+        Numeric_Param required_input    = { "Required Input (kg): ",    1, 0.0,         1, 'L', 80  }; // col L row 4
+        Numeric_Param ground_weight     = { "Ground Weight (kg): ",     2, 0.0,         1, 'L', 100 }; // col L row 5
+        Numeric_Param zone_1_temp       = { "Zone 1: ",                 3, 0.0,         1, 'R', 100 }; // col R row 5
+        Numeric_Param zone_2_temp       = { "Zone 2: ",                 4, 0.0,         1, 'R', 120 }; // col R row 6
+        Numeric_Param zone_3_temp       = { "Zone 3: ",                 5, 0.0,         1, 'R', 140 }; // col R row 7
+        Numeric_Param screw_speed       = { "Screw Speed [RPM]: ",      6, 0.0,         1, 'R', 160 }; // col R row 10
+        Numeric_Param filament_diameter = { "Diameter (mm): ",          7, 0.0,         1, 'R', 180 }; // col R row 11
+        Numeric_Param extruded_length   = { "Extruded Length (m): ",    8, 0.0,         1, 'R', 200 }; // col R row 12
+        Numeric_Param projected_yield   = { "Projected Yield (kg): ",   9, 0.0,         1, 'R', 60  }; // col R row 3
+        Status_Param hopper_lid_status  = { "Hopper Lid Status: ",      0, STATUS_NONE, 1, 'L', 120 }; // col L row 6
+        Status_Param grinder_status     = { "Grinder (On/Off): ",       1, STATUS_NONE, 1, 'L', 140 }; // col L row 7
+        Status_Param preparation_status = { "Status: ",                 2, STATUS_NONE, 1, 'L', 40  }; // col L row 2
+        Status_Param extrusion_status   = { "Status: ",                 3, STATUS_NONE, 1, 'R', 40  }; // col R row 2
         /*******************************************************************************************************************/
         Numeric_Param* numeric_params[NUMERIC_PARAM_COUNT] = { &desired_yield, &required_input, &ground_weight,
                                                                &zone_1_temp, &zone_2_temp, &zone_3_temp,
@@ -102,6 +101,7 @@ class Display
         void set_output_screen();
 };
 
+/* set_label_and_value() */
 template <class T> void Display::set_label_and_value (T Params_Array, unsigned char label_type)
 {
     unsigned short text_color = 0;
@@ -122,29 +122,34 @@ template <class T> void Display::set_label_and_value (T Params_Array, unsigned c
     for (int ID = 0; ID < item_count; ID++)
     {
         if (Params_Array[ID]->COLUMN == 'R') { label_cursor = 235; value_cursor = 385; }
-        tft.setCursor(label_cursor, Params_Array[ID]->CURSOR_Y);
+        tft.setCursor(label_cursor, Params_Array[ID]->ROW);
         tft.print(Params_Array[ID]->LABEL);
-        tft.setCursor(value_cursor, Params_Array[ID]->CURSOR_Y);
+        tft.setCursor(value_cursor, Params_Array[ID]->ROW);
         tft.print(Params_Array[ID]->VALUE);
     }
 }
+/* END set_label_and_value() */
 
+/* update_output() */
 template <class T> void Display::update_output( T Params_Array, unsigned char ID )
 {
     unsigned short value_cursor = 130;
     if (Params_Array[ID]->COLUMN == 'R') { value_cursor = 385; }
     set_text(1, HX8357_WHITE);
-    tft.fillRect(value_cursor, Params_Array[ID]->CURSOR_Y, 95, 15, HX8357_BLACK);
-    tft.setCursor(value_cursor, Params_Array[ID]->CURSOR_Y);
+    tft.fillRect(value_cursor, Params_Array[ID]->ROW, 95, 15, HX8357_BLACK);
+    tft.setCursor(value_cursor, Params_Array[ID]->ROW);
     tft.print(Params_Array[ID]->VALUE);
     Params_Array[ID]->IS_CURRENT = true;
 }
+/* END update_output() */
 
+/* poll_inputs() */
 template <class T> void Display::poll_inputs(T Params_Array, unsigned char SIZE)
 {
     for (int ID = 0; ID < SIZE; ID++)
         if (Params_Array[ID]->IS_CURRENT == false) { update_output(Params_Array, ID); }
 }
+/* END poll_inputs() */
 
 /* set_numeric_input_screen() */
 template <class T> void Display::set_numeric_input_screen(T Params_Array, const unsigned char ID)

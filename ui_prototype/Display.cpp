@@ -45,14 +45,18 @@ void Display::set_output_screen()
 }
 /* END set_output_screen() */
 
+/* set_new_numeric_value() */
 void Display::set_new_numeric_value(float new_value, unsigned char ID)
 {
     numeric_params[ID]->VALUE = new_value;
     numeric_params[ID]->IS_CURRENT = false;
 }
+/* END set_new_numeric_value() */
 
+/* set_new_status_value() */
 void Display::set_new_status_value(char* new_value, unsigned char ID)
 {
     status_params[ID]->VALUE = new_value;
     status_params[ID]->IS_CURRENT = false;
 }
+/* END set_new_status_value() */

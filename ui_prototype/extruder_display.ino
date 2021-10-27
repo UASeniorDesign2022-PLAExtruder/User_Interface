@@ -18,16 +18,28 @@
 
 Display UI;
 
-String data_string = "";
+
 char data_source_id = 0;
+
+union floatToBytes
+{
+    char buffer[4];
+    float numeric_param_input;
+};
+
+union floatToBytes converter;
+byte status_param_input = 0;
 
 void setup()
 {
-    Serial.begin(9600);
+
+    Wire.setClock(400000);
     Wire.begin(0x14);
+    
+    Wire.onReceive(I2C_receive_event);
+    Serial.begin(9600);
+    byte complete = 0x07;
     /*Event Handlers*/
-    Wire.onReceive(data_receive);
-    Wire.onRequest(data_request);
     UI.tft.begin();
     UI.tft.setRotation(1);
     UI.set_numeric_input_screen(UI.numeric_params, UI.desired_yield.ID);
@@ -48,25 +60,25 @@ void loop()
     delay(1000);
 }
 
-void data_receive()
+void I2C_receive_event()
 {
-    unsigned char count = 0;
-    while(Wire.available()) 
-    { 
-        char receive_data = Wire.read();
-        if (count == 0)
-            data_source_id = receive_data;
+    uint8_t index = 0;
+    byte incoming_data_ID;
+    while (Wire.available())
+    {
+        if (index == 0)
+        {
+            incoming_data_ID = Wire.read();
+            index++;
+            continue;
+        }
+        if (incoming_data_ID < 5)
+            status_param_input = Wire.read(); 
         else
-            data_string = data_string + receive_data;
-        count++;
+            converter.buffer[index - 1] = Wire.read();
+        index++;    
     }
-    float data_string_value = data_string.toFloat();
-    Serial.print("data source  ID:\t"); Serial.println(data_source_id);
-    Serial.print("data string val:\t"); Serial.println(data_string_value);
-}
-
-void data_request()
-{
-    byte slave_send = 0xFF;
-    Wire.write(slave_send);
+    Serial.print("data ID: "); Serial.print(incoming_data_ID); Serial.print("\tdata: ");
+    if (incoming_data_ID < 5) { Serial.println(status_param_input); }
+    else                      { Serial.println(converter.numeric_param_input); }
 }
