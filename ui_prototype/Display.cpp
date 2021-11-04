@@ -17,6 +17,67 @@
 #include "TouchScreen.h"
 #include "Display.h"
 
+void Display::direct_I2C_data(uint8_t data_ID, uint8_t data)
+{
+    bool is_status_input = false;
+    if (data_ID > 0x0A)
+        is_status_input = true;
+    unsigned char ID = 0;
+    switch(data_ID)
+    {
+        case 0x01:
+            ID = 0;
+            break;  
+        case 0x02:
+            ID = 1;
+            break;
+        case 0x03:
+            ID = 2;
+            break;
+        case 0x04:
+            ID = 3;
+            break;
+        case 0x05:
+            ID = 4;
+            break;
+        case 0x06:
+            ID = 5;
+            break;
+        case 0x07:
+            ID = 6;
+            break;
+        case 0x08:
+            ID = 7;
+            break;
+        case 0x09:
+            ID = 8;
+            break;
+        case 0x0A:
+            ID = 9;
+            break;
+        case 0x0B:
+            ID = 0;
+            break;
+        case 0x0C:
+            ID = 1;
+            break;
+        case 0x0D:
+            ID = 2;
+            break;
+        case 0x0E:
+            ID = 3;
+            break;
+        default:
+            break;
+    }
+    if (is_status_input == false)
+        set_new_numeric_value((float)data, ID);
+    else
+        return;
+        // set_new_status_value((String)data, ID);
+    
+}
+
 /* set_text() */
 void Display::set_text(unsigned char S, unsigned short C)
 {

@@ -6,7 +6,9 @@
  * User Interface Application
  *    Arduino Uno
  *    Adafruit HX8357
+ *    CURRENT
  ***********************************************************************/
+
 #include <SPI.h>
 #include <Wire.h>
 #include <stdint.h>
@@ -18,9 +20,6 @@
 
 Display UI;
 
-
-char data_source_id = 0;
-
 union floatToBytes
 {
     char buffer[4];
@@ -28,42 +27,86 @@ union floatToBytes
 };
 
 union floatToBytes converter;
-byte status_param_input = 0;
+/*
+uint8_t incoming_message = 0;
+uint8_t outgoing_message = 0x55;
+*/
+uint8_t incoming_data_ID = 0;
+uint8_t status_param_input = 0;
+
+struct I2C_INT_DATA
+{
+    uint8_t incoming_ID = 0;
+    uint8_t incoming_value = 0;
+};
+
+I2C_INT_DATA i2c_int_data;
+
+
+/*
+uint8_t ack = 0;
+bool I2C_message_initiated = false;
+bool I2C_receive_message = false;
+*/
 
 void setup()
 {
-
-    Wire.setClock(400000);
     Wire.begin(0x14);
     
     Wire.onReceive(I2C_receive_event);
+    Wire.onRequest(I2C_request_event);
     Serial.begin(9600);
     byte complete = 0x07;
     /*Event Handlers*/
     UI.tft.begin();
     UI.tft.setRotation(1);
-    UI.set_numeric_input_screen(UI.numeric_params, UI.desired_yield.ID);
-    UI.get_numeric_user_input(UI.numeric_params, UI.desired_yield.ID);
-    UI.required_input.VALUE = UI.desired_yield.VALUE * 1.11;
-    delay(500);
+    // UI.set_numeric_input_screen(UI.numeric_params, UI.desired_yield.ID);
+    // UI.get_numeric_user_input(UI.numeric_params, UI.desired_yield.ID);
+    // UI.required_input.VALUE = UI.desired_yield.VALUE * 1.11;
+    
     UI.set_output_screen();
-    UI.set_new_numeric_value(999.9, 4);
-    UI.set_new_numeric_value(999.9, 5);
-    UI.set_new_numeric_value(999.9, 6);
-    UI.set_new_status_value("In Progress", 2);
+    // delay(500);
+    // UI.set_new_numeric_value(999.9, 4);
+    // UI.set_new_numeric_value(999.9, 5);
+    // UI.set_new_numeric_value(999.9, 6);
+    // UI.set_new_status_value("In Progress", 2);
 }
 
 void loop()
 {
+
+   // Wire.write(outgoing_message);
+   /*
+   if(Wire.available())
+   {
+      status_param_input = Wire.read();
+   }
+   */
+    UI.set_new_numeric_value((float)status_param_input, UI.required_input.ID);
     UI.poll_inputs(UI.numeric_params, NUMERIC_PARAM_COUNT);
-    UI.poll_inputs(UI.status_params, STATUS_PARAM_COUNT);
-    delay(1000);
+    //UI.poll_inputs(UI.status_params, STATUS_PARAM_COUNT);
+    /*
+    if (I2C_message_initiated == true)
+    {
+        Wire.write(255);
+        I2C_message_initiated = false;
+    }
+    */
+    
+    // Serial.print("data ID: "); Serial.print(incoming_data_ID); Serial.print("\tdata: ");
+    
+    /*
+    incoming_data_ID = 0;
+    status_param_input = 0;
+    incoming_message = 0;
+    */
 }
 
-void I2C_receive_event()
+
+void I2C_receive_event(int howMany)
 {
+
     uint8_t index = 0;
-    byte incoming_data_ID;
     while (Wire.available())
     {
         if (index == 0)
@@ -72,13 +115,18 @@ void I2C_receive_event()
             index++;
             continue;
         }
-        if (incoming_data_ID < 5)
-            status_param_input = Wire.read(); 
         else
-            converter.buffer[index - 1] = Wire.read();
-        index++;    
+        {
+            status_param_input = Wire.read();
+        }
+        index++;
     }
-    Serial.print("data ID: "); Serial.print(incoming_data_ID); Serial.print("\tdata: ");
-    if (incoming_data_ID < 5) { Serial.println(status_param_input); }
-    else                      { Serial.println(converter.numeric_param_input); }
+    // if (incoming_data_ID < 5) { Serial.println(status_param_input); }
+    // else                      { Serial.println(converter.numeric_param_input); }
+}
+
+void I2C_request_event()
+{
+  
+    Wire.write(0x14);
 }
