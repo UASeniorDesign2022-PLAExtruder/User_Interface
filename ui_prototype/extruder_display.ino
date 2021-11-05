@@ -53,11 +53,11 @@ void setup()
 {
     Wire.begin(0x14);
     
+    /*Event Handlers*/
     Wire.onReceive(I2C_receive_event);
     Wire.onRequest(I2C_request_event);
     Serial.begin(9600);
     byte complete = 0x07;
-    /*Event Handlers*/
     UI.tft.begin();
     UI.tft.setRotation(1);
     // UI.set_numeric_input_screen(UI.numeric_params, UI.desired_yield.ID);
@@ -82,8 +82,13 @@ void loop()
       status_param_input = Wire.read();
    }
    */
-    UI.set_new_numeric_value((float)status_param_input, UI.required_input.ID);
-    UI.poll_inputs(UI.numeric_params, NUMERIC_PARAM_COUNT);
+    if(i2c_int_data.incoming_ID != 0)
+    {
+        UI.direct_I2C_data(i2c_int_data.incoming_ID, i2c_int_data.incoming_value);
+        UI.poll_inputs(UI.numeric_params, NUMERIC_PARAM_COUNT);
+        i2c_int_data.incoming_ID = 0;
+        i2c_int_data.incoming_value = 0;
+    }
     //UI.poll_inputs(UI.status_params, STATUS_PARAM_COUNT);
     /*
     if (I2C_message_initiated == true)
@@ -97,7 +102,7 @@ void loop()
     
     /*
     incoming_data_ID = 0;
-    status_param_input = 0;
+    status_param_input = 0;s
     incoming_message = 0;
     */
 }
@@ -111,13 +116,13 @@ void I2C_receive_event(int howMany)
     {
         if (index == 0)
         {
-            incoming_data_ID = Wire.read();
+            i2c_int_data.incoming_ID = Wire.read();
             index++;
             continue;
         }
         else
         {
-            status_param_input = Wire.read();
+            i2c_int_data.incoming_value = Wire.read();
         }
         index++;
     }
