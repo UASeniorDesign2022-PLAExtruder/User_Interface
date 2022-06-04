@@ -24,7 +24,7 @@
 #define YM 7
 #define XP 8
 
-const unsigned char NUMERIC_PARAM_COUNT = 10;
+const unsigned char NUMERIC_PARAM_COUNT = 13;
 const unsigned char STATUS_PARAM_COUNT = 4;
 
 class Display
@@ -67,20 +67,23 @@ class Display
         const char* STATUS_COMPLETE     = "Complete";                    /*  STATUS_COMPLETE      0x07    */
         /*******************************************************************************************************************/
         X_Y pr;
-        Numeric_Param desired_yield     = { "Desired Yield (kg): ",     0, 0.0,         1, 'L', 60  }; // col L row 3   data id = 0x01
-        Numeric_Param required_input    = { "Required Input (kg): ",    1, 0.0,         1, 'L', 80  }; // col L row 4   data id = 0x02
-        Numeric_Param ground_weight     = { "Ground Weight (kg): ",     2, 0.0,         1, 'L', 100 }; // col L row 5   data id = 0x03
-        Numeric_Param zone_1_temp       = { "Zone 1: ",                 3, 0.0,         1, 'R', 100 }; // col R row 5   data id = 0x04
-        Numeric_Param zone_2_temp       = { "Zone 2: ",                 4, 0.0,         1, 'R', 120 }; // col R row 6   data id = 0x05
-        Numeric_Param zone_3_temp       = { "Zone 3: ",                 5, 0.0,         1, 'R', 140 }; // col R row 7   data id = 0x06
-        Numeric_Param screw_speed       = { "Screw Speed [RPM]: ",      6, 0.0,         1, 'R', 160 }; // col R row 10  data id = 0x07
-        Numeric_Param filament_diameter = { "Diameter (mm): ",          7, 0.0,         1, 'R', 180 }; // col R row 11  data id = 0x08
-        Numeric_Param extruded_length   = { "Extruded Length (m): ",    8, 0.0,         1, 'R', 200 }; // col R row 12  data id = 0x09
-        Numeric_Param projected_yield   = { "Projected Yield (kg): ",   9, 0.0,         1, 'R', 60  }; // col R row 3   data id = 0x0a
-        Status_Param hopper_lid_status  = { "Hopper Lid Status: ",      0, STATUS_NONE, 1, 'L', 120 }; // col L row 6   data id = 0x0b
-        Status_Param grinder_status     = { "Grinder (On/Off): ",       1, STATUS_NONE, 1, 'L', 140 }; // col L row 7   data id = 0x0c
-        Status_Param preparation_status = { "Status: ",                 2, STATUS_NONE, 1, 'L', 40  }; // col L row 2   data id = 0x0d
-        Status_Param extrusion_status   = { "Status: ",                 3, STATUS_NONE, 1, 'R', 40  }; // col R row 2   data id = 0x0e
+        Numeric_Param desired_yield     = { "Desired Yield (kg): ",     0,  0.0,         1, 'L', 60  }; // col L row 3   data id = 0x01
+        Numeric_Param required_input    = { "Required Input (kg): ",    1,  0.0,         1, 'L', 80  }; // col L row 4   data id = 0x02
+        Numeric_Param ground_weight     = { "Ground Weight (kg): ",     2,  0.0,         1, 'L', 100 }; // col L row 5   data id = 0x03
+        Numeric_Param zone_1_temp       = { "Zone 1 Temp. (Celsius): ", 3,  0.0,         1, 'R', 80  }; // col R row 5   data id = 0x04
+        Numeric_Param zone_2_temp       = { "Zone 2 Temp. (Celsius): ", 4,  0.0,         1, 'R', 100 }; // col R row 6   data id = 0x05
+        Numeric_Param zone_3_temp       = { "Zone 3 Temp. (Celsius): ", 5,  0.0,         1, 'R', 120 }; // col R row 7   data id = 0x06
+        Numeric_Param screw_speed       = { "Screw Speed: ",            6,  0.0,         1, 'R', 200 }; // col R row 10  data id = 0x07
+        Numeric_Param roller_speed      = { "Roller Speed: ",           7,  0.0,         1, 'R', 220 }; // col R row 11  data id = 0x08
+        Numeric_Param spooler_speed     = { "Spooler Speed: ",          8,  0.0,         1, 'R', 240 }; // col R row 11  data id = 0x09
+        Numeric_Param heater_1_power    = { "Heater 1 Power (%): ",     9,  0.0,         1, 'R', 140 }; // col R row 11  data id = 0x0A
+        Numeric_Param heater_2_power    = { "Heater 2 Power (%): ",     10, 0.0,         1, 'R', 160 }; // col R row 12  data id = 0x0B
+        Numeric_Param projected_yield   = { "Projected Yield (kg): ",   11, 0.0,         1, 'R', 60  }; // col R row 3   data id = 0x0C
+        Numeric_Param heater_3_power    = { "Heater 3 Power (%): ",     12, 0.0,         1, 'R', 180 };
+        Status_Param hopper_lid_status  = { "Hopper Lid Status: ",      0,  STATUS_NONE, 1, 'L', 120 }; // col L row 6   data id = 0x10
+        Status_Param grinder_status     = { "Grinder (On/Off): ",       1,  STATUS_NONE, 1, 'L', 140 }; // col L row 7   data id = 0x20
+        Status_Param preparation_status = { "Status: ",                 2,  STATUS_NONE, 1, 'L', 40  }; // col L row 2   data id = 0x30
+        Status_Param extrusion_status   = { "Status: ",                 3,  STATUS_NONE, 1, 'R', 40  }; // col R row 2   data id = 0x40
 
 
         const uint8_t DESIRED_YIELD_ID        = 0x01;
@@ -90,19 +93,22 @@ class Display
         const uint8_t ZONE_2_TEMP_ID          = 0x05;
         const uint8_t ZONE_3_TEMP_ID          = 0x06;
         const uint8_t SCREW_SPEED_ID          = 0x07;
-        const uint8_t DIAMETER_ID             = 0x08;
-        const uint8_t EXTRUDED_LENGTH_ID      = 0x09;
-        const uint8_t PROJECTED_YIELD_ID      = 0x0A;
-        const uint8_t HOPPER_LID_STATUS_ID    = 0x0B;
-        const uint8_t GRINDER_ON_OFF_ID       = 0x0C;
-        const uint8_t PREPARATION_STATUS_ID   = 0x0D;
-        const uint8_t EXTRUSION_STATUS_ID     = 0x0E;
+        const uint8_t ROLLER_SPEED_ID         = 0x08;
+        const uint8_t SPOOLER_SPEED_ID        = 0x09;
+        const uint8_t HEATER_1_POWER_ID       = 0x0A;
+        const uint8_t HEATER_2_POWER_ID       = 0x0B;
+        const uint8_t PROJECTED_YIELD_ID      = 0x0C;
+        const uint8_t HEATER_3_POWER_ID       = 0x0D;
+        const uint8_t HOPPER_LID_STATUS_ID    = 0x10;
+        const uint8_t GRINDER_ON_OFF_ID       = 0x20;
+        const uint8_t PREPARATION_STATUS_ID   = 0x30;
+        const uint8_t EXTRUSION_STATUS_ID     = 0x40;
         
         /*******************************************************************************************************************/
         Numeric_Param* numeric_params[NUMERIC_PARAM_COUNT] = { &desired_yield, &required_input, &ground_weight,
                                                                &zone_1_temp, &zone_2_temp, &zone_3_temp,
-                                                               &screw_speed, &filament_diameter, &extruded_length,
-                                                               &projected_yield };                                                  
+                                                               &screw_speed, &roller_speed, &spooler_speed, &heater_1_power, &heater_2_power,
+                                                               &projected_yield, &heater_3_power };                                                  
         Status_Param* status_params[STATUS_PARAM_COUNT]    = { &hopper_lid_status, &grinder_status, &preparation_status,
                                                                &extrusion_status };
         /*******************************************************************************************************************/
@@ -111,7 +117,8 @@ class Display
         template <class T> void poll_inputs(T Params_Array, unsigned char SIZE);  
         template <class T> void set_numeric_input_screen(T Params_Array, const unsigned char ID);
         template <class T> void get_numeric_user_input(T Params_Array, const unsigned char ID); 
-        void direct_I2C_data(uint8_t data_ID, uint8_t data);  
+        void direct_I2C_Numeric_Param(uint8_t data_ID, float value); 
+        void direct_I2C_Status_Param(uint8_t data_ID, uint8_t status); 
         void set_text(unsigned char S, unsigned short C);
         void set_new_numeric_value(float new_value, unsigned char ID);
         void set_new_status_value(char* new_value, unsigned char ID);
@@ -132,8 +139,8 @@ template <class T> void Display::set_label_and_value (T Params_Array, unsigned c
     tft.print("Preparation Stage");
     tft.setCursor(235, 20);
     tft.print("Extrusion Stage");
-    tft.setCursor(235, 80);
-    tft.print("Temperatures");
+//    tft.setCursor(235, 80);
+//    tft.print("Temperatures");
     if (label_type == 0) { item_count = NUMERIC_PARAM_COUNT; }
     else { item_count = STATUS_PARAM_COUNT; }
     set_text(1,HX8357_WHITE);

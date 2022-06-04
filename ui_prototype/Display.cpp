@@ -17,10 +17,10 @@
 #include "TouchScreen.h"
 #include "Display.h"
 
-void Display::direct_I2C_data(uint8_t data_ID, uint8_t data)
+void Display::direct_I2C_Numeric_Param(uint8_t data_ID, float value)
 {
     bool is_status_input = false;
-    if (data_ID > 0x0A)
+    if (data_ID > 0x0F)
         is_status_input = true;
     unsigned char ID = 0;
     switch(data_ID)
@@ -56,26 +56,87 @@ void Display::direct_I2C_data(uint8_t data_ID, uint8_t data)
             ID = 9;
             break;
         case 0x0B:
-            ID = 0;
+            ID = 10;
             break;
         case 0x0C:
-            ID = 1;
+            ID = 11;
             break;
         case 0x0D:
+            ID = 12;
+        default:
+            break;
+    }
+    set_new_numeric_value(value, ID);
+}
+
+
+
+
+/*____Status___________I2C Code__*/
+/*  STATUS_NONE          0x00    */
+/*  STATUS_READY         0x01    */                 
+/*  STATUS_ON            0x02    */
+/*  STATUS_OFF           0x03    */
+/*  STATUS_OPEN          0x04    */
+/*  STATUS_CLOSED        0x05    */
+/*  STATUS_IN_PROGRESS   0x06    */
+/*  STATUS_COMPLETE      0x07    */
+
+
+
+        
+void Display::direct_I2C_Status_Param(uint8_t data_ID, uint8_t status_ID)
+{
+    unsigned char ID = 0;
+    char* status_value;
+    switch(data_ID)
+    {
+        case 0x10:
+            ID = 0;
+            break;
+        case 0x20:
+            ID = 1;
+            break;
+        case 0x30:
             ID = 2;
             break;
-        case 0x0E:
+        case 0x40:
             ID = 3;
             break;
         default:
             break;
     }
-    if (is_status_input == false)
-        set_new_numeric_value((float)data, ID);
-    else
-        return;
-        // set_new_status_value((String)data, ID);
-    
+
+    switch(status_ID)
+    {
+        case 0x00:
+            status_value = STATUS_NONE;
+            break;
+        case 0x01:
+            status_value = STATUS_READY;
+            break;
+        case 0x02:
+            status_value = STATUS_ON;
+            break;
+        case 0x03:
+            status_value = STATUS_OFF;
+            break;
+        case 0x04:
+            status_value = STATUS_OPEN;
+            break;
+        case 0x05:
+            status_value = STATUS_CLOSED;
+            break;
+        case 0x06:
+            status_value = STATUS_IN_PROGRESS;
+            break;
+        case 0x07:
+            status_value = STATUS_COMPLETE;
+            break;
+        default:
+            break;
+    }
+    set_new_status_value(status_value, ID);
 }
 
 /* set_text() */
