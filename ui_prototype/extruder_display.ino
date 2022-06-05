@@ -70,7 +70,7 @@ void loop()
     {
         if (is_status == true)
         {
-            UI.direct_I2C_Status_Param(i2c_int_data.incoming_ID, i2c_int_data.incoming_status);
+//            UI.direct_I2C_Status_Param(i2c_int_data.incoming_ID, i2c_int_data.incoming_status);
         }
         else
         {
@@ -84,12 +84,12 @@ void loop()
     }
     
     UI.poll_inputs(UI.numeric_params, NUMERIC_PARAM_COUNT);
-    UI.poll_inputs(UI.status_params, STATUS_PARAM_COUNT);
+//    UI.poll_inputs(UI.status_params, STATUS_PARAM_COUNT);
 }
 
 
 void I2C_receive_event(int howMany)
-{TMCM-1633
+{
     
     uint8_t index = 0;
     while (Wire.available())
